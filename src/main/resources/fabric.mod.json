@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "thoroughfabric",
+  "version": "${version}",
+  "name": "Thoroughfabric",
+  "description": "\"The beaten path is the safest, but the traffic's terrible.\"",
+  "authors": [
+    "fingerguns83"
+  ],
+  "contact": {
+    "website": "https://fg83.net"
+  },
+  "license": "MIT",
+  "icon": "assets/Thoroughfabric/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.fg83.thoroughfabric.Thoroughfabric"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": ">=${minecraft_version}"
+  },
+  "mixins": [
+    "mixins.thoroughfabric.json"
+  ]
+}

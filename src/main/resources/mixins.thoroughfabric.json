@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.fg83.thoroughfabric.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "HoeMixin",
+    "SteppableMixin"
+  ],
+  "server": []
+}
