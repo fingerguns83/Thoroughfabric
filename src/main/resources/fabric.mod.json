@@ -11,7 +11,7 @@
     "website": "https://fg83.net"
   },
   "license": "MIT",
-  "icon": "assets/Thoroughfabric/icon.png",
+  "icon": "assets/thoroughfabric/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
