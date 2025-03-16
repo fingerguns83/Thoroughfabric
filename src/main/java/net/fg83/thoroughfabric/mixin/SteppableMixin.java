@@ -8,7 +8,9 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,6 +25,14 @@ public class SteppableMixin {
     @Inject(method = "onSteppedOn", at = @At("HEAD"))
     private void onSteppedOn(World world, BlockPos pos, BlockState state, Entity entity, CallbackInfo ci) {
         if (!world.isClient){
+            if (entity instanceof ServerPlayerEntity player && player.interactionManager.getGameMode() == GameMode.ADVENTURE) {
+                return;
+            }
+
+            if (entity.hasPassengers() && entity.getFirstPassenger() instanceof ServerPlayerEntity rider && rider.interactionManager.getGameMode() == GameMode.ADVENTURE) {
+                return;
+            }
+
             new Footstep(world, pos, state, entity).process();
         }
     }
