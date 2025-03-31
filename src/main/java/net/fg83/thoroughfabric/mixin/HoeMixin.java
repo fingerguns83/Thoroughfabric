@@ -1,9 +1,13 @@
 package net.fg83.thoroughfabric.mixin;
 
 import net.fg83.thoroughfabric.StepCountData;
+import net.fg83.thoroughfabric.TFUtils;
 import net.minecraft.item.HoeItem;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,14 +26,15 @@ public class HoeMixin {
                 (int) Math.round(context.getHitPos().z)
         );
 
-        context.getWorld().getBlockState(pos);
         if (!context.getWorld().isClient){
-            StepCountData stepCountData = StepCountData.get(
-                    Objects.requireNonNull(
-                            Objects.requireNonNull(context.getWorld().getServer()).getWorld(context.getWorld().getRegistryKey())
-                    )
-            );
-            stepCountData.resetStepCount(pos);
+            if (TFUtils.affectedBlocks.contains(context.getWorld().getBlockState(pos).getBlock())){
+                StepCountData stepCountData = StepCountData.get((ServerWorld) context.getWorld());
+                if (stepCountData.getStepCount(pos) > 0){
+                    stepCountData.resetStepCount(pos);
+                    Objects.requireNonNull(context.getPlayer()).playSound(SoundEvent.of(Identifier.of("item.brush.brushing.gravel.complete")));
+                    cir.cancel();
+                }
+            }
         }
     }
 
