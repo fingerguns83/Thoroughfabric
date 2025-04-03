@@ -1,15 +1,17 @@
 package net.fg83.thoroughfabric;
 
-import net.minecraft.datafixer.DataFixTypes;
+import com.mojang.serialization.Codec;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.PersistentState;
+import net.minecraft.world.PersistentStateType;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -64,7 +66,6 @@ public class StepCountData extends PersistentState {
      * @param registryLookup Registry wrapper lookup.
      * @return The modified Nbt compound.
      */
-    @Override
     public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         NbtList stepCountList = new NbtList();
         for (Map.Entry<BlockPos, Integer> entry : stepCounts.entrySet()) {
@@ -83,12 +84,17 @@ public class StepCountData extends PersistentState {
      * @param nbt The Nbt compound to read from.
      */
     public void readFromNbt(NbtCompound nbt) {
-        NbtList stepCountList = nbt.getList("stepCounts", 10);
-        for (int i = 0; i < stepCountList.size(); i++) {
-            NbtCompound compound = stepCountList.getCompound(i);
-            BlockPos pos = BlockPos.fromLong(compound.getLong("pos"));
-            int count = compound.getInt("count");
-            stepCounts.put(pos, count);
+        Optional<NbtList> stepCountList = nbt.getList("stepCounts");
+        if (stepCountList.isEmpty()) {
+            return;
+        }
+        for (int i = 0; i < stepCountList.get().size(); i++) {
+            Optional<NbtCompound> compound = stepCountList.get().getCompound(i);
+            compound.ifPresent(c -> {
+                BlockPos pos = BlockPos.fromLong(c.getLong("pos").orElseThrow());
+                int count = c.getInt("count").orElseThrow();
+                stepCounts.put(pos, count);
+            });
         }
     }
 
@@ -97,14 +103,12 @@ public class StepCountData extends PersistentState {
      *
      * @return The PersistentState.Type for StepCountData.
      */
-    private static PersistentState.Type<StepCountData> createType() {
+    private static PersistentStateType<StepCountData> createType() {
         Supplier<StepCountData> constructor = StepCountData::new;
-        BiFunction<NbtCompound, RegistryWrapper.WrapperLookup, StepCountData> deserializer = (nbt, wrapper) -> {
-            StepCountData data = new StepCountData();
-            data.readFromNbt(nbt);
-            return data;
-        };
-        return new PersistentState.Type<>(constructor, deserializer, DataFixTypes.SAVED_DATA_MAP_DATA);
+
+        Codec<StepCountData> codec = Codec.unit(constructor);
+
+        return new PersistentStateType<>(Thoroughfabric.MOD_ID, StepCountData::new, codec, null);
     }
 
     /**
@@ -114,7 +118,7 @@ public class StepCountData extends PersistentState {
      * @return The StepCountData instance.
      */
     public static StepCountData get(ServerWorld world) {
-        return world.getPersistentStateManager().getOrCreate(createType(), "stepCounts");
+        return world.getPersistentStateManager().getOrCreate(createType());
     }
 }
 

@@ -33,15 +33,19 @@ public class SteppableMixin {
         if (player == null || player.interactionManager.getGameMode() == GameMode.ADVENTURE) return;
 
         UUID playerId = player.getUuid();
+        BlockPos playerPos = player.getBlockPos();
         Block stateBlock = state.getBlock();
+
         if (!affectedBlocks.contains(stateBlock)) {
-            PlayerLocationTracker.updatePlayerLocation(playerId, pos);
+            PlayerLocationTracker.updatePlayerLocation(playerId, playerPos);
             return;
         }
 
-        BlockPos currentLocation = PlayerLocationTracker.getPlayerLocation(playerId);
-        if (currentLocation == null || !currentLocation.equals(pos)) {
-            PlayerLocationTracker.updatePlayerLocation(playerId, pos);
+        BlockPos lastLocation = PlayerLocationTracker.getPlayerLocation(playerId);
+        PlayerLocationTracker.updatePlayerLocation(playerId, playerPos);
+
+        if (lastLocation == null || lastLocation.equals(playerPos)) {
+            return;
         }
 
         int stepWeight = calculateStepWeight(entity);
