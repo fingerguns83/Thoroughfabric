@@ -1,5 +1,7 @@
 package net.fg83.thoroughfabric;
 
+import java.util.List;
+
 public class TFConfig {
     // Step Counts
     public int grassReps = 20;
@@ -16,5 +18,8 @@ public class TFConfig {
     public int pigMulti = 1;
     public int striderMulti = 1;
 
+    // Area Restriction
+    public boolean useAreaRestrictions = false;
+    public List<String> areaIds = List.of("desirepathable");
 
 }
