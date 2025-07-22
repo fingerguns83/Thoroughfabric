@@ -10,6 +10,7 @@ import net.minecraft.world.PersistentState;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -85,9 +86,10 @@ public class StepCountData extends PersistentState {
     public void readFromNbt(NbtCompound nbt) {
         NbtList stepCountList = nbt.getList("stepCounts", 10);
         for (int i = 0; i < stepCountList.size(); i++) {
-            NbtCompound compound = stepCountList.getCompound(i);
-            BlockPos pos = BlockPos.fromLong(compound.getLong("pos"));
-            int count = compound.getInt("count");
+            Optional<NbtCompound> compound = stepCountList.getCompound(i);
+
+            BlockPos pos = BlockPos.fromLong(compound.orElseThrow().getLong("pos").orElseThrow());
+            int count = compound.orElseThrow().getInt("count").orElseThrow();
             stepCounts.put(pos, count);
         }
     }
